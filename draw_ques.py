@@ -5,13 +5,13 @@ import random
 
 # Parse the question bank Excel file and build up a 2D question position list, based on Group and Category
 class DrawQuestions():
-    def __init__(self):
-        self.df = pd.read_excel("questions.xlsx")
+    def __init__(self, file_ques_bank, first_group, last_group, first_category, last_category):
+        self.df = pd.read_excel(file_ques_bank)
 
         # Question group: M, N, O, P
         # Question category: A to H
-        total_groups = 4
-        total_cats = 8
+        total_groups = ord(last_group) - ord(first_group) + 1
+        total_cats = ord(last_category) - ord(first_category) + 1
         # Create a 2D question position list.  Position means Excel dataframe row number
         self.question_pos_lists = [[[] for col in range(total_cats)] for row in range(total_groups)]
 
@@ -25,14 +25,13 @@ class DrawQuestions():
 
 
     # Randomly draw questions for one test paper.  Return a list of indexes for the dataframe
-    def get_ques_list(self):
+    def get_ques_list(self, ques_per_cat_list):
         # Number of questions to be drawn from each category
-        ques_per_cat = [10, 10, 10, 10, 15, 15, 15, 15]
 
         # Draw questions for a test paper
         index_df_list = []
         # The questions will follow the category orders, i.e. A to H
-        for index_cat, num_ques_cat in enumerate(ques_per_cat):
+        for index_cat, num_ques_cat in enumerate(ques_per_cat_list):
             # Choose either Group M or N + either Group O or P for each category of questions
             group1 = random.randint(0, 1)
             group2 = random.randint(2, 3)

@@ -1,6 +1,7 @@
 from draw_ques import DrawQuestions
 import openpyxl
 from genPDF import ExamPDF
+from read_config import *
 
 
 # Create mark sheet as Excel file
@@ -10,12 +11,12 @@ def write_marksheet(marksheet):
     sheet = workbook.active
     for item in marksheet:
         sheet.append(item)
-    workbook.save("marksheet.xlsx")
+    workbook.save(file_marksheet)
 
 
-q = DrawQuestions()
-index_df_list = q.get_ques_list()
-exam_pdf = ExamPDF()
+q = DrawQuestions(file_ques_bank, first_group, last_group, first_category, last_category)
+index_df_list = q.get_ques_list(ques_per_cat_list)
+exam_pdf = ExamPDF(file_testpaper)
 marksheet = []
 marksheet.append(['no', 'question', 'correct_ans'])
 

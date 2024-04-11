@@ -10,9 +10,9 @@ from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
 
 class ExamPDF():
-    def __init__(self):
+    def __init__(self, file_testpaper):
         # the outermost container for the document
-        self.doc = SimpleDocTemplate("EL-test-paper.pdf",
+        self.doc = SimpleDocTemplate(file_testpaper,
                                 rightMargin=24,
                                 leftMargin=48,
                                 topMargin=24,
