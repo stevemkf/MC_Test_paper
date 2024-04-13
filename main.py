@@ -15,7 +15,7 @@ def write_marksheet(marksheet):
 
 
 q = DrawQuestions(file_ques_bank, first_group, last_group, first_category, last_category)
-index_df_list = q.get_ques_list(ques_per_cat_list)
+index_df_list = q.get_ques_list(first_group, mid_group, last_group, ques_per_cat_list)
 exam_pdf = ExamPDF(file_testpaper)
 marksheet = []
 marksheet.append(['no', 'question', 'correct_ans'])

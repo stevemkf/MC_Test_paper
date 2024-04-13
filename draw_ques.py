@@ -19,13 +19,16 @@ class DrawQuestions():
         for index_df, row in self.df.iterrows():
             # question_num: e.g. M01A, P04H
             question_num = row['no']
-            group = ord(question_num[0]) - ord('M')
-            cat = ord(question_num[len(question_num) - 1]) - ord('A')
-            self.question_pos_lists[group][cat].append(index_df)
+            group = ord(question_num[0]) - ord(first_group)
+            cat = ord(question_num[len(question_num) - 1]) - ord(first_category)
+            # defensive programming - avoid index out of range
+            if (group <= ord(last_group) - ord(first_group)) and \
+                    (cat <= ord(last_category) - ord(first_category)):
+                self.question_pos_lists[group][cat].append(index_df)
 
 
     # Randomly draw questions for one test paper.  Return a list of indexes for the dataframe
-    def get_ques_list(self, ques_per_cat_list):
+    def get_ques_list(self, first_group, mid_group, last_group, ques_per_cat_list):
         # Number of questions to be drawn from each category
 
         # Draw questions for a test paper
@@ -33,9 +36,14 @@ class DrawQuestions():
         # The questions will follow the category orders, i.e. A to H
         for index_cat, num_ques_cat in enumerate(ques_per_cat_list):
             # Choose either Group M or N + either Group O or P for each category of questions
-            group1 = random.randint(0, 1)
-            group2 = random.randint(2, 3)
-            cat_ques_list = self.question_pos_lists[group1][index_cat] + self.question_pos_lists[group2][index_cat]
+            group1_end = ord(mid_group) - ord(first_group)
+            group1 = random.randint(0, group1_end)
+            cat_ques_list = self.question_pos_lists[group1][index_cat]
+            # one group of two groups of questions?
+            if last_group != mid_group:
+                group2_end = ord(last_group) - ord(first_group)
+                group2 = random.randint(group1_end + 1, group2_end)
+                cat_ques_list = cat_ques_list + self.question_pos_lists[group2][index_cat]
             cat_ques_drawn = random.sample(cat_ques_list, num_ques_cat)
             # Sort the questions so that it is easier to check the results
             cat_ques_drawn.sort()
