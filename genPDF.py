@@ -8,6 +8,8 @@ from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
+from read_config import language
+
 
 class ExamPDF():
     def __init__(self, file_testpaper):
@@ -19,17 +21,19 @@ class ExamPDF():
                                 bottomMargin=24,
                                 allowSplitting=False)        # a question will not be splitted on two pages
 
-        # from Adobe's Asian Language Packs
-        font_Chinese = "STSong-Light"
-        pdfmetrics.registerFont(UnicodeCIDFont(font_Chinese))
-
         # specifications for layouts of pages of various kinds
         styles = getSampleStyleSheet()
-        styles['Normal'].fontName = font_Chinese
         styles['Normal'].leading = 24                       # = line height
-        self.normal = styles['Normal']
-        styles['Heading2'].fontName = font_Chinese
         styles['Heading2'].alignment = TA_CENTER
+
+        # from Adobe's Asian Language Packs
+        if language == "Chinese":
+            font_Chinese = "STSong-Light"
+            pdfmetrics.registerFont(UnicodeCIDFont(font_Chinese))
+            styles['Normal'].fontName = font_Chinese
+            styles['Heading2'].fontName = font_Chinese
+
+        self.normal = styles['Normal']
         self.big_char = styles['Heading2']
 
         # pdf document contents will be built up in story
@@ -38,7 +42,7 @@ class ExamPDF():
 
     def write_question(self, ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, image):
         # the reportlab table coordinates are (col, row)
-        cell_00 = Paragraph("Q" + str(ques_num_paper), self.normal)
+        cell_00 = Paragraph("Q" + str(ques_num_paper) + ".", self.normal)
         cell_10 = Paragraph(question, self.normal)
         # the 4 answers are added as a numbered list
         cell_11 = ListFlowable([Paragraph(s, self.normal) for s in [choice_1, choice_2, choice_3, choice_4]],
@@ -50,13 +54,17 @@ class ExamPDF():
                 # the image dimension in Electrician trade written test is 4:3
                 cell_12 = Image(f"image/{image}", width=3.2 * inch, height=2.4 * inch)
             except:
-                cell_12 = Paragraph("找不到圖片!", self.big_char)    # image file not found
+                if language == "Chinese":
+                    message = "找不到圖片!"
+                else:
+                    message = "picture not found!"
+                cell_12 = Paragraph(message, self.big_char)    # image file not found
                 print(f"image/{image} file not found!")                  # give error message
         else:
             cell_12 = ""
         # create a table for each question
         data = [[cell_00, cell_10, ""], ["", cell_11, cell_12]]
-        t = Table(data, colWidths=(0.5*inch, 3*inch, 3.5*inch))
+        t = Table(data, colWidths=(0.6*inch, 3*inch, 3.4*inch))
         t.setStyle(TableStyle([('ALIGN', (0, 0), (2, 1), 'LEFT'),
                                ('VALIGN', (0, 0), (2, 1), 'TOP'),
                                ('SPAN', (1, 0), (2, 0)),])
@@ -77,5 +85,9 @@ class ExamPDF():
             canvas.restoreState()
 
         # write the whole question paper to PDF file
-        self.story.append(Paragraph("--- 完 ---", self.big_char))
+        if language == "Chinese":
+            message = "--- 完 ---"
+        else:
+            message = "--- End ---"
+        self.story.append(Paragraph(message, self.big_char))
         self.doc.build(self.story, onFirstPage=myPages, onLaterPages=myPages)
