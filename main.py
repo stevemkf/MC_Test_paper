@@ -27,6 +27,7 @@ def write_marksheet(excel_rows, paper_no):
 def gen_paper(paper_no):
     global q, output_path, config_dict
 
+    # retrieve configuration file contents from a global dictionary
     file_ques_bank = config_dict['question bank']
     first_group = config_dict['first group']
     mid_group = config_dict['mid group']
@@ -38,15 +39,18 @@ def gen_paper(paper_no):
     language = config_dict['language']
     file_testpaper = config_dict['test paper']
 
+    # one question dataframe is sufficient for several test papers
     if paper_no == 1:
         q = DrawQuestions(file_ques_bank, first_group, last_group, first_category, last_category)
 
+    # draw different sets of questions for each paper
     index_df_list = q.get_ques_list(first_group, mid_group, last_group, ques_per_cat_list)
+    # assign different filenames for the test papers
     filename = f"{file_testpaper}-{paper_no:02d}.pdf"
     exam_pdf = ExamPDF(os.path.join(output_path, filename), language)
+    # prepare Excel mark sheets as well
     excel_rows = [['no', 'question', 'correct_ans']]
 
-    # Retrieve the question contents from dataframe, based on their position numbers
     ques_num_paper = 1
     for index_df in index_df_list:
         ques = q.get_question(index_df)
@@ -59,21 +63,23 @@ def gen_paper(paper_no):
         answer = ques["answer"]
         image = ques["image"]
 
-        # build the mark sheet
-        excel_rows.append([ques_num_paper, question_num, answer])
         # built the pdf question paper
         exam_pdf.write_question(ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, image)
+        # build the mark sheet
+        excel_rows.append([ques_num_paper, question_num, answer])
         ques_num_paper = ques_num_paper + 1
 
-    # Save the mark sheet as an Excel file
-    write_marksheet(excel_rows, paper_no)
+    # save the test paper as a pdf file
     exam_pdf.close()
+    # save the mark sheet as an Excel file
+    write_marksheet(excel_rows, paper_no)
 
 
 def gen_papers():
     global folder_name, output_path, config_dict
 
     msg_box.delete(0.0, tk.END)
+    # conduct preliminary check on user inputs
     if folder_name == "":
         message = "Please load the configuration file first!"
         msg_box.insert(tk.END, message)
@@ -83,17 +89,23 @@ def gen_papers():
     else:
         input_str = num_papers.get()
         if input_str.isnumeric():
+
+            # prepare the output folder for test papers and mark sheets
             output_path = os.path.join(folder_name, "output")
             if not os.path.exists(output_path):
                 os.makedirs(output_path)
             files = [os.path.join(output_path, f) for f in os.listdir(output_path)]
             for f in files:
                 os.remove(f)
+
+            # create the test papers and mark sheets one by one
             total_papers = int(input_str)
             for paper_no in range(1, total_papers + 1):
                 gen_paper(paper_no)
+                # give feedback on the progress
                 message = f"Paper {paper_no} was created.\n"
                 msg_box.insert(tk.END, message)
+                window.update()
         else:
             message = "Please specify how many papers!"
             msg_box.insert(tk.END, message)
@@ -107,6 +119,7 @@ def select_config():
     file_path = filedialog.askopenfilename(title=title, initialdir=home_dir, filetypes=[("Excel files", "*.xlsx"), ])
     folder_name, file_name = os.path.split(file_path)
     msg_box.delete(0.0, tk.END)
+    # conduct preliminary checks
     if file_name != "config.xlsx":
         message = "Incorrect file!"
         msg_box.insert(tk.END, message)
@@ -123,7 +136,7 @@ def select_config():
         msg_box.insert(tk.END, message)
 
 
-# main loop provides the user interface
+# main loop providing the user interface
 window = tk.Tk()
 window.geometry("800x480")
 window.title('Generate MC Exam Paper')
