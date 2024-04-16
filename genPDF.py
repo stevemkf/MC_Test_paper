@@ -8,11 +8,10 @@ from reportlab.lib.units import inch
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 
-from read_config import language
-
 
 class ExamPDF():
-    def __init__(self, file_testpaper):
+    def __init__(self, file_testpaper, language):
+        self.language = language
         # the outermost container for the document
         self.doc = SimpleDocTemplate(file_testpaper,
                                 rightMargin=24,
@@ -27,7 +26,7 @@ class ExamPDF():
         styles['Heading2'].alignment = TA_CENTER
 
         # from Adobe's Asian Language Packs
-        if language == "Chinese":
+        if self.language == "Chinese":
             font_Chinese = "STSong-Light"
             pdfmetrics.registerFont(UnicodeCIDFont(font_Chinese))
             styles['Normal'].fontName = font_Chinese
@@ -54,7 +53,7 @@ class ExamPDF():
                 # the image dimension in Electrician trade written test is 4:3
                 cell_12 = Image(f"image/{image}", width=3.2 * inch, height=2.4 * inch)
             except:
-                if language == "Chinese":
+                if self.language == "Chinese":
                     message = "找不到圖片!"
                 else:
                     message = "picture not found!"
@@ -85,7 +84,7 @@ class ExamPDF():
             canvas.restoreState()
 
         # write the whole question paper to PDF file
-        if language == "Chinese":
+        if self.language == "Chinese":
             message = "--- 完 ---"
         else:
             message = "--- End ---"
