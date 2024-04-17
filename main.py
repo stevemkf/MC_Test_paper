@@ -153,6 +153,8 @@ btn_papers = tk.Button(text="Generate exam papers", command=gen_papers)
 btn_papers.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 msg_box = tk.Text(width=80)
 msg_box.grid(row=3, column=0, columnspan=2, sticky=tk.W, padx=5, pady=5)
+btn_exit = tk.Button(text="Exit", command=window.destroy)
+btn_exit.grid(row=3, column=1, sticky=tk.S + tk.E, padx=5, pady=5)
 
 window.mainloop()
 
