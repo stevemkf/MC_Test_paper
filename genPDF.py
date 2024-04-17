@@ -39,26 +39,26 @@ class ExamPDF():
         self.story = []
 
 
-    def write_question(self, ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, image):
+    def write_question(self, ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, path_image):
         # the reportlab table coordinates are (col, row)
         cell_00 = Paragraph("Q" + str(ques_num_paper) + ".", self.normal)
         cell_10 = Paragraph(question, self.normal)
         # the 4 answers are added as a numbered list
         cell_11 = ListFlowable([Paragraph(s, self.normal) for s in [choice_1, choice_2, choice_3, choice_4]],
                                 bulletType="a", bulletFormat="%s)")
-        if image:                                   # is there a picture in the questions?
-            try:                                    # yes
-                file1 = open(f"image/{image}")      # check if the image file can be found or not
+        if path_image:                                  # is there a picture in the questions?
+            try:                                        # yes
+                file1 = open(path_image)                # check if the image file can be found or not
                 file1.close()
                 # the image dimension in Electrician trade written test is 4:3
-                cell_12 = Image(f"image/{image}", width=3.2 * inch, height=2.4 * inch)
+                cell_12 = Image(path_image, width=3.2 * inch, height=2.4 * inch)
             except:
                 if self.language == "Chinese":
                     message = "找不到圖片!"
                 else:
                     message = "picture not found!"
-                cell_12 = Paragraph(message, self.big_char)    # image file not found
-                print(f"image/{image} file not found!")                  # give error message
+                cell_12 = Paragraph(message, self.big_char)         # image file not found
+                print(f"{path_image} not found!")                   # give error message
         else:
             cell_12 = ""
         # create a table for each question

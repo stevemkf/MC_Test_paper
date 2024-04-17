@@ -41,7 +41,8 @@ def gen_paper(paper_no):
 
     # one question dataframe is sufficient for several test papers
     if paper_no == 1:
-        q = DrawQuestions(file_ques_bank, first_group, last_group, first_category, last_category)
+        path_ques_bank = os.path.join(folder_name, file_ques_bank)
+        q = DrawQuestions(path_ques_bank, first_group, last_group, first_category, last_category)
 
     # draw different sets of questions for each paper
     index_df_list = q.get_ques_list(first_group, mid_group, last_group, ques_per_cat_list)
@@ -61,10 +62,15 @@ def gen_paper(paper_no):
         choice_3 = ques["choice_3"]
         choice_4 = ques["choice_4"]
         answer = ques["answer"]
-        image = ques["image"]
+        fname_image = ques["image"]
 
         # built the pdf question paper
-        exam_pdf.write_question(ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, image)
+        # picture files are stored in folder "image"
+        if fname_image:
+            path_image = os.path.join(folder_name, 'image', fname_image)
+        else:
+            path_image = ""
+        exam_pdf.write_question(ques_num_paper, question, choice_1, choice_2, choice_3, choice_4, path_image)
         # build the mark sheet
         excel_rows.append([ques_num_paper, question_num, answer])
         ques_num_paper = ques_num_paper + 1
