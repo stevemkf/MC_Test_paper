@@ -10,7 +10,7 @@ for group in groups:
         # generate 10 questions per each group-cat
         for x in range (1, 11):
             ques_num = group + f"{x:02}" + cat
-            question = f"This is question {ques_num}."
+            question = f"This is question {ques_num} for the VM written test."
             answer = random.randint(1, 4)
             pic_no = random.randint(1, 30)
             if pic_no <= 7:
@@ -24,4 +24,4 @@ workbook = openpyxl.Workbook()
 sheet = workbook.active
 for item in questions:
     sheet.append(item)
-workbook.save("example_ques.xlsx")
+workbook.save("questions_VM.xlsx")

@@ -29,12 +29,11 @@ class DrawQuestions():
 
     # Randomly draw questions for one test paper.  Return a list of indexes for the dataframe
     def get_ques_list(self, first_group, mid_group, last_group, ques_per_cat_list):
-        # Number of questions to be drawn from each category
-
-        # Draw questions for a test paper
         index_df_list = []
         # The questions will follow the category orders, i.e. A to H
-        for index_cat, num_ques_cat in enumerate(ques_per_cat_list):
+        # defensive programming - take care of excessive entries in config.sys
+        num_cat = len(self.question_pos_lists[0])
+        for index_cat, num_ques_cat in enumerate(ques_per_cat_list[0:num_cat]):
             # Choose either Group M or N + either Group O or P for each category of questions
             group1_end = ord(mid_group) - ord(first_group)
             group1 = random.randint(0, group1_end)
