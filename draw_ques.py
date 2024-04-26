@@ -4,13 +4,17 @@ import random
 
 
 # Parse the question bank Excel file and build up a 2D question position list, based on Group and Category
+# Question group: e.g. M, N, O, P
+# Question category: e.g. A to H
 class DrawQuestions():
     def __init__(self, file_ques_bank, first_group, last_group, first_category, last_category):
         self.df = pd.read_excel(file_ques_bank)
 
-        # Question group: M, N, O, P
-        # Question category: A to H
-        total_groups = ord(last_group) - ord(first_group) + 1
+        if first_group != "":
+             total_groups = ord(last_group) - ord(first_group) + 1
+        else:
+            # special treatment in case there are only one group of questions, e.g. 01A, 02A, ... 01H, 02H, ...
+            total_groups = 1
         total_cats = ord(last_category) - ord(first_category) + 1
         # Create a 2D question position list.  Position means Excel dataframe row number
         self.question_pos_lists = [[[] for col in range(total_cats)] for row in range(total_groups)]
@@ -19,15 +23,20 @@ class DrawQuestions():
         for index_df, row in self.df.iterrows():
             # question_num: e.g. M01A, P04H
             question_num = row['no']
-            group = ord(question_num[0]) - ord(first_group)
+            if first_group != "":
+                group = ord(question_num[0]) - ord(first_group)
+            else:
+                # special treatment in case there are only one group of questions, e.g. 01A, 02A, ... 01H, 02H, ...
+                group = 0
             cat = ord(question_num[len(question_num) - 1]) - ord(first_category)
             # defensive programming - avoid index out of range
-            if (group <= ord(last_group) - ord(first_group)) and \
-                    (cat <= ord(last_category) - ord(first_category)):
+            if cat <= ord(last_category) - ord(first_category):
                 self.question_pos_lists[group][cat].append(index_df)
 
 
-    # Randomly draw questions for one test paper.  Return a list of indexes for the dataframe
+    # Randomly draw questions for one test paper.  Return a list of indexes for the dataframe.
+    # It is assumed that the question groups are divided into two batches.
+    # Each batch contribute one group of questions for each category, MxxA, OxxA.
     def get_ques_list(self, first_group, mid_group, last_group, ques_per_cat_list):
         index_df_list = []
         # The questions will follow the category orders, i.e. A to H
@@ -35,11 +44,15 @@ class DrawQuestions():
         num_cat = len(self.question_pos_lists[0])
         for index_cat, num_ques_cat in enumerate(ques_per_cat_list[0:num_cat]):
             # Choose either Group M or N + either Group O or P for each category of questions
-            group1_end = ord(mid_group) - ord(first_group)
-            group1 = random.randint(0, group1_end)
+            if first_group != "":
+                group1_end = ord(mid_group) - ord(first_group)
+                group1 = random.randint(0, group1_end)
+            else:
+                # special treatment in case there are only one group of questions, e.g. 01A, 02A, ... 01H, 02H, ...
+                group1 = 0
             cat_ques_list = self.question_pos_lists[group1][index_cat]
-            # one group of two groups of questions?
-            if last_group != mid_group:
+            # one group or two groups of questions?
+            if (first_group != "") and (last_group != mid_group):
                 group2_end = ord(last_group) - ord(first_group)
                 group2 = random.randint(group1_end + 1, group2_end)
                 cat_ques_list = cat_ques_list + self.question_pos_lists[group2][index_cat]
@@ -51,6 +64,7 @@ class DrawQuestions():
         return index_df_list
 
 
+    # Return the real question numbers (e.g. M1A, P12H) and correct answers for the drawn questions
     def get_ques_num_ans_list(self, index_df_list):
         ques_num_list = []
         ques_ans_list = []

@@ -2,14 +2,15 @@ import openpyxl
 import random
 
 questions = [['no', 'question', 'cho1', 'cho2', 'cho3', 'cho4', 'ans', 'pic']]
-groups = ['M', 'N', 'O', 'P']
+groups = ['M']
 cats = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 for group in groups:
     for cat in cats:
         # generate 10 questions per each group-cat
         for x in range (1, 11):
-            ques_num = group + f"{x:02}" + cat
+            # ques_num = group + f"{x:02}" + cat
+            ques_num = f"{x:02}" + cat
             question = f"This is question {ques_num} for the VM written test."
             answer = random.randint(1, 4)
             pic_no = random.randint(1, 30)

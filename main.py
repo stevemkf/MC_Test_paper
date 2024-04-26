@@ -30,6 +30,9 @@ def gen_paper(paper_no):
     # retrieve configuration file contents from a global dictionary
     file_ques_bank = config_dict['question bank']
     first_group = config_dict['first group']
+    # special treatment in case there are only one group of questions, e.g. 01A, 02A, ... 01H, 02H, ...
+    if not isinstance(first_group, str):
+        first_group = ""
     mid_group = config_dict['mid group']
     last_group = config_dict['last group']
     first_category = config_dict['first category']
@@ -126,7 +129,7 @@ def select_config():
     folder_name, file_name = os.path.split(file_path)
     msg_box.delete(0.0, tk.END)
     # conduct preliminary checks
-    if file_name != "config.xlsx":
+    if "config" not in file_name:
         message = "Incorrect file!"
         msg_box.insert(tk.END, message)
     else:
